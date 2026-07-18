@@ -32,6 +32,8 @@ class URL(Base):
         nullable=False,
     )
 
+    click_count: Mapped[int] = mapped_column(default=0)
+
 def create_tables():
     Base.metadata.create_all(engine)
 

@@ -9,7 +9,10 @@ router = APIRouter()
 
 @router.post("/shorten")
 def shorten_url(url: URLRequest, session: DBSession):
-    code = generate(size=6)
+    if url.custom_alias:
+        code = url.custom_alias
+    else:
+        code = generate(size=6)
     new_url = URL(short_code = code, original_url = url.long_url)
     session.add(new_url)
     session.commit()
@@ -25,6 +28,9 @@ def redirect(code: str, session: DBSession):
 
     if not url:
         raise HTTPException(status_code=404, detail="URL not found")
+    
+    url.click_count += 1
+    session.commit()
 
     return RedirectResponse(url.original_url)
 
