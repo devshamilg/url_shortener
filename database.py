@@ -34,10 +34,6 @@ class URL(Base):
 
     click_count: Mapped[int] = mapped_column(default=0)
 
-def create_tables():
-    Base.metadata.create_all(engine)
-
-
 def get_db():
     with Session(engine) as session:
         yield session
