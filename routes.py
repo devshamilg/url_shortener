@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/")
 def get_main_page():
-    return FileResponse("templates/frotend.html")
+    return FileResponse("templates/frontend.html")
 
 @router.post("/shorten")
 def shorten_url(url: URLRequest, session: DBSession, request: Request):
@@ -23,7 +23,7 @@ def shorten_url(url: URLRequest, session: DBSession, request: Request):
 
     if existing_url:
         return {
-            "short_url": f"http://127.0.0.1:8000/{existing_url.short_code}"
+            "short_url": f"go.devshamil.online/{existing_url.short_code}"
         }
     
     if url.custom_alias:
@@ -40,7 +40,7 @@ def shorten_url(url: URLRequest, session: DBSession, request: Request):
     session.commit()
     session.refresh(new_url)
     return {
-        "short_url": f"http://127.0.0.1:8000/{new_url.short_code}"
+        "short_url": f"go.devshamil.online/{new_url.short_code}"
     }   
 
 @router.get("/{code}")

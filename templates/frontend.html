@@ -65,6 +65,12 @@ input:focus {
     border-color: #4f8cff;
 }
 
+.alias-hint {
+    margin-top: -8px;
+    color: #777;
+    font-size: .85rem;
+}
+
 button {
     cursor: pointer;
     padding: 15px;
@@ -115,13 +121,6 @@ button:disabled {
     display: none;
 }
 
-.footer {
-    margin-top: 25px;
-    text-align: center;
-    color: #777;
-    font-size: .9rem;
-}
-
 @media (max-width:600px){
 
 .container{
@@ -145,6 +144,7 @@ button:disabled {
 <div class="container">
 
 <h1>URL Shortener</h1>
+
 <p class="subtitle">
 Paste a long URL and instantly generate a short link.
 </p>
@@ -156,6 +156,17 @@ id="urlInput"
 type="url"
 placeholder="https://example.com/some/very/long/link"
 />
+
+<input
+id="aliasInput"
+type="text"
+placeholder="Custom alias (optional)"
+maxlength="50"
+/>
+
+<p class="alias-hint">
+Leave blank to generate a random short link.
+</p>
 
 <button id="shortenBtn">
 Shorten URL
@@ -181,14 +192,13 @@ Copy
 
 </div>
 
-
-
 </div>
 
 <script>
 
 const button = document.getElementById("shortenBtn");
 const input = document.getElementById("urlInput");
+const aliasInput = document.getElementById("aliasInput");
 const result = document.getElementById("result");
 const shortUrl = document.getElementById("shortUrl");
 const copyBtn = document.getElementById("copyBtn");
@@ -200,6 +210,7 @@ button.addEventListener("click", async () => {
     result.style.display = "none";
 
     const url = input.value.trim();
+    const alias = aliasInput.value.trim();
 
     if (!url) {
         error.textContent = "Please enter a URL.";
@@ -212,22 +223,28 @@ button.addEventListener("click", async () => {
 
     try {
 
+        const body = {
+            long_url: url
+        };
+
+        if (alias) {
+            body.custom_alias = alias;
+        }
+
         const response = await fetch("/shorten", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                original_url: url
-            })
+            body: JSON.stringify(body)
         });
-
-        if (!response.ok)
-            throw new Error("Failed to shorten URL.");
 
         const data = await response.json();
 
-        // Change this depending on your API response
+        if (!response.ok) {
+            throw new Error(data.detail || "Failed to shorten URL.");
+        }
+
         shortUrl.value = data.short_url;
 
         result.style.display = "block";
@@ -254,7 +271,7 @@ copyBtn.addEventListener("click", async () => {
 
     setTimeout(() => {
         copyBtn.textContent = "Copy";
-    },1500);
+    }, 1500);
 
 });
 
