@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import FileResponse
 from scemas import URLRequest
 from database import DBSession, URL
 from nanoid import generate
@@ -7,6 +8,10 @@ from fastapi.responses import RedirectResponse
 from services.rate_limiter import check_rate_limit
 
 router = APIRouter()
+
+@router.get("/")
+def get_main_page():
+    return FileResponse("templates/frotend.html")
 
 @router.post("/shorten")
 def shorten_url(url: URLRequest, session: DBSession, request: Request):

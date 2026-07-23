@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL Shortener</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter, Arial, sans-serif;
+}
+
+body {
+    background: #0f1115;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    padding: 40px;
+    background: #171b22;
+    border: 1px solid #2a2f38;
+    border-radius: 18px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.35);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 2rem;
+}
+
+.subtitle {
+    text-align: center;
+    color: #9ca3af;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    background: #0f1115;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #4f8cff;
+}
+
+button {
+    cursor: pointer;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #4f8cff;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+button:hover {
+    background: #3d74da;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.result {
+    margin-top: 30px;
+    display: none;
+}
+
+.result p {
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.result-box {
+    display: flex;
+    gap: 10px;
+}
+
+.result-box input {
+    flex: 1;
+}
+
+.copy-btn {
+    width: 90px;
+}
+
+.error {
+    margin-top: 20px;
+    color: #ff6b6b;
+    display: none;
+}
+
+.footer {
+    margin-top: 25px;
+    text-align: center;
+    color: #777;
+    font-size: .9rem;
+}
+
+@media (max-width:600px){
+
+.container{
+    margin:20px;
+    padding:30px 20px;
+}
+
+.result-box{
+    flex-direction:column;
+}
+
+.copy-btn{
+    width:100%;
+}
+
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>URL Shortener</h1>
+<p class="subtitle">
+Paste a long URL and instantly generate a short link.
+</p>
+
+<div class="input-group">
+
+<input
+id="urlInput"
+type="url"
+placeholder="https://example.com/some/very/long/link"
+/>
+
+<button id="shortenBtn">
+Shorten URL
+</button>
+
+</div>
+
+<div class="error" id="error"></div>
+
+<div class="result" id="result">
+
+<p>Your short link</p>
+
+<div class="result-box">
+
+<input id="shortUrl" readonly>
+
+<button class="copy-btn" id="copyBtn">
+Copy
+</button>
+
+</div>
+
+</div>
+
+
+
+</div>
+
+<script>
+
+const button = document.getElementById("shortenBtn");
+const input = document.getElementById("urlInput");
+const result = document.getElementById("result");
+const shortUrl = document.getElementById("shortUrl");
+const copyBtn = document.getElementById("copyBtn");
+const error = document.getElementById("error");
+
+button.addEventListener("click", async () => {
+
+    error.style.display = "none";
+    result.style.display = "none";
+
+    const url = input.value.trim();
+
+    if (!url) {
+        error.textContent = "Please enter a URL.";
+        error.style.display = "block";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Generating...";
+
+    try {
+
+        const response = await fetch("/shorten", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                original_url: url
+            })
+        });
+
+        if (!response.ok)
+            throw new Error("Failed to shorten URL.");
+
+        const data = await response.json();
+
+        // Change this depending on your API response
+        shortUrl.value = data.short_url;
+
+        result.style.display = "block";
+
+    } catch (e) {
+
+        error.textContent = e.message;
+        error.style.display = "block";
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Shorten URL";
+
+    }
+
+});
+
+copyBtn.addEventListener("click", async () => {
+
+    await navigator.clipboard.writeText(shortUrl.value);
+
+    copyBtn.textContent = "Copied!";
+
+    setTimeout(() => {
+        copyBtn.textContent = "Copy";
+    },1500);
+
+});
+
+</script>
+
+</body>
+</html>
