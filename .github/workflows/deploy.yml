@@ -1,19 +1,4 @@
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Deploy to server
-        run: |
-
-name: Deploy FastAPI
+name: Deployment Workflow
 
 on:
   push:
