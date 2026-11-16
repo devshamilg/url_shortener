@@ -33,6 +33,7 @@ jobs:
             set -e
 
             cd /home/deploy/url_shortener
+            git remote set-url origin https://github.com/devshamilg/url_shortener.git
             git pull origin main
             docker compose build api
             docker compose up -d --no-deps api
